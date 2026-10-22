@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags: ['v[0-9]*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to build and publish (for example v0.2.0)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  package-and-publish:
+    runs-on: macos-26
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+      - name: Validate release version
+        run: |
+          source scripts/app-config.sh
+          [[ "${RELEASE_TAG}" == "v${VERSION}" ]] || { echo "Tag must match scripts/app-config.sh version"; exit 1; }
+          git show-ref --verify "refs/tags/${RELEASE_TAG}"
+          echo "VERSION=${VERSION}" >> "${GITHUB_ENV}"
+          xcodebuild -version
+          xcrun swift --version
+      - name: Test
+        run: xcrun swift test
+      - name: Build Universal DMG, PKG and ZIP
+        run: bash scripts/package-release.sh
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Awake-${{ env.VERSION }}-macOS-universal
+          path: |
+            dist/Awake-${{ env.VERSION }}.dmg
+            dist/Awake-${{ env.VERSION }}.pkg
+            dist/Awake-${{ env.VERSION }}.zip
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish GitHub Release
+        run: |
+          if ! gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
+            gh release create "${RELEASE_TAG}" --verify-tag --draft \
+              --title "醒咖 Awake ${VERSION}" --notes-file docs/release-notes.md
+          fi
+          gh release upload "${RELEASE_TAG}" \
+            "dist/Awake-${VERSION}.dmg" \
+            "dist/Awake-${VERSION}.pkg" \
+            "dist/Awake-${VERSION}.zip" \
+            dist/SHA256SUMS.txt --clobber
+          gh release edit "${RELEASE_TAG}" --draft=false --latest \
+            --title "醒咖 Awake ${VERSION}" --notes-file docs/release-notes.md
