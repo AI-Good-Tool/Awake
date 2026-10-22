@@ -22,4 +22,7 @@ jobs:
       - name: Test
         run: xcrun swift test
       - name: Check packaging scripts
-        run: bash -n scripts/*.sh script/*.sh
+        run: |
+          for script in scripts/*.sh script/*.sh; do
+            bash -n "${script}"
+          done
