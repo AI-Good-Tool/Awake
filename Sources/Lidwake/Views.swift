@@ -11,7 +11,7 @@ struct MenuHeaderView: View {
                     usesActiveColor: appState.menuBarIconUsesActiveColor,
                     activeColorHex: appState.menuBarIconColorHex
                 ))
-                .frame(width: 24, height: 18)
+                .frame(width: 25, height: 18)
                 Text(appState.quickPaused ? "已暂停" : appState.status.effectiveMode.title)
                     .font(.headline)
             }
@@ -44,16 +44,25 @@ struct MenuHeaderView: View {
 }
 
 struct SettingsView: View {
+    @ObservedObject var navigation: SettingsNavigation
+
     var body: some View {
-        TabView {
+        TabView(selection: $navigation.selectedTab) {
             GeneralSettingsView()
                 .tabItem { Label("总览", systemImage: "switch.2") }
+                .tag(SettingsTab.general)
             WhitelistSettingsView()
                 .tabItem { Label("白名单", systemImage: "app.badge") }
+                .tag(SettingsTab.whitelist)
             ScheduleSettingsView()
                 .tabItem { Label("定时", systemImage: "calendar") }
+                .tag(SettingsTab.schedule)
             DiagnosticsView()
                 .tabItem { Label("诊断", systemImage: "waveform.path.ecg") }
+                .tag(SettingsTab.diagnostics)
+            AboutSettingsView()
+                .tabItem { Label("关于", systemImage: "info.circle") }
+                .tag(SettingsTab.about)
         }
         .frame(width: 760, height: 560)
     }
@@ -87,13 +96,18 @@ struct GeneralSettingsView: View {
                 Toggle("运行时使用彩色咖啡杯", isOn: $appState.menuBarIconUsesActiveColor)
                 ColorPicker("运行颜色", selection: Binding(
                     get: {
-                        Color(nsColor: NSColor(hex: appState.menuBarIconColorHex) ?? .systemBlue)
+                        Color(nsColor: BrandImages.activeStatusColor(hex: appState.menuBarIconColorHex))
                     },
                     set: { color in
                         appState.menuBarIconColorHex = NSColor(color).hexString
                     }
                 ))
                 .disabled(!appState.menuBarIconUsesActiveColor)
+
+                Button("使用柔和默认色") {
+                    appState.menuBarIconColorHex = Brand.defaultActiveColorHex
+                }
+                .disabled(!appState.menuBarIconUsesActiveColor || appState.menuBarIconColorHex == Brand.defaultActiveColorHex)
 
                 HStack(spacing: 12) {
                     Text("预览")
@@ -103,7 +117,7 @@ struct GeneralSettingsView: View {
                         usesActiveColor: appState.menuBarIconUsesActiveColor,
                         activeColorHex: appState.menuBarIconColorHex
                     ))
-                    .frame(width: 24, height: 18)
+                    .frame(width: 25, height: 18)
                     Text("关闭时显示空心杯；启用模式后显示实心杯。")
                         .foregroundStyle(.secondary)
                 }
@@ -167,13 +181,6 @@ struct GeneralSettingsView: View {
                 }
             }
 
-            Section("关于") {
-                LabeledContent("版本") {
-                    Text(Brand.versionText)
-                        .monospacedDigit()
-                        .textSelection(.enabled)
-                }
-            }
         }
         .formStyle(.grouped)
         .padding()

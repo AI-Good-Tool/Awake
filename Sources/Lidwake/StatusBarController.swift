@@ -14,6 +14,7 @@ final class StatusBarController: NSObject {
         AppLog.write("status item allocated; button exists: \(statusItem.button != nil)")
         statusItem.isVisible = true
         configureButton()
+        configureApplicationMenu()
         bindState()
         refreshIcon()
         AppLog.write("status item configured")
@@ -32,6 +33,32 @@ final class StatusBarController: NSObject {
         button.bezelStyle = .texturedRounded
         button.isBordered = false
         button.toolTip = "\(Brand.appName)：左键暂停/恢复，右键打开菜单"
+    }
+
+    private func configureApplicationMenu() {
+        let menu = NSMenu()
+        let applicationItem = NSMenuItem()
+        let applicationMenu = NSMenu(title: Brand.appName)
+        for item in appInfoMenuItems() { applicationMenu.addItem(item) }
+        applicationMenu.addItem(.separator())
+        let settings = NSMenuItem(title: "设置...", action: #selector(openSettings), keyEquivalent: ",")
+        settings.target = self
+        applicationMenu.addItem(settings)
+        applicationMenu.addItem(.separator())
+        let quitItem = NSMenuItem(title: "退出醒咖 Awake", action: #selector(quit), keyEquivalent: "q")
+        quitItem.target = self
+        applicationMenu.addItem(quitItem)
+        applicationItem.submenu = applicationMenu
+        menu.addItem(applicationItem)
+        NSApplication.shared.mainMenu = menu
+    }
+
+    private func appInfoMenuItems() -> [NSMenuItem] {
+        let about = NSMenuItem(title: "关于醒咖 Awake...", action: #selector(openAbout), keyEquivalent: "")
+        about.target = self
+        let update = NSMenuItem(title: "检查更新...", action: #selector(checkForUpdates), keyEquivalent: "")
+        update.target = self
+        return [about, update]
     }
 
     private func bindState() {
@@ -87,7 +114,7 @@ final class StatusBarController: NSObject {
         button.imageScaling = .scaleProportionallyUpOrDown
         button.contentTintColor = iconColor
 
-        statusItem.length = 29
+        statusItem.length = 33
     }
 
     @objc private func statusItemClicked(_ sender: NSStatusBarButton) {
@@ -175,6 +202,8 @@ final class StatusBarController: NSObject {
         settingsItem.target = self
         menu.addItem(settingsItem)
 
+        for item in appInfoMenuItems() { menu.addItem(item) }
+
         let diagnosticsItem = NSMenuItem(title: "导出诊断...", action: #selector(exportDiagnostics), keyEquivalent: "")
         diagnosticsItem.target = self
         menu.addItem(diagnosticsItem)
@@ -214,6 +243,15 @@ final class StatusBarController: NSObject {
 
     @objc private func openSettings() {
         appState.openSettings()
+    }
+
+    @objc private func openAbout() {
+        SettingsWindowPresenter.shared.show(tab: .about)
+    }
+
+    @objc private func checkForUpdates() {
+        SettingsWindowPresenter.shared.show(tab: .about)
+        Task { await UpdateChecker.shared.checkForUpdates() }
     }
 
     @objc private func exportDiagnostics() {

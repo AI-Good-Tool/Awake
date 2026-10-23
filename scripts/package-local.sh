@@ -38,7 +38,7 @@ else
 fi
 cp "${MACOS_DIR}/${EXECUTABLE_NAME}" "${MACOS_DIR}/${WATCHDOG_NAME}"
 
-"${SWIFT[@]}" "${ROOT_DIR}/scripts/make-app-icon.swift" "${ICONSET_DIR}" "${ROOT_DIR}/Assets/Brand/AppIcon.png"
+"${SWIFT[@]}" "${ROOT_DIR}/scripts/make-app-icon.swift" "${ICONSET_DIR}" "${ROOT_DIR}/Assets/Brand/AppIconArtwork.png"
 iconutil -c icns "${ICONSET_DIR}" -o "${RESOURCES_DIR}/AppIcon.icns"
 
 cat > "${CONTENTS_DIR}/Info.plist" <<PLIST

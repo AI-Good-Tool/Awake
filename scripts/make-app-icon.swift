@@ -2,7 +2,7 @@ import AppKit
 import Foundation
 
 let outputURL = URL(fileURLWithPath: CommandLine.arguments.dropFirst().first ?? "dist/AwakeIcon.iconset")
-let sourceURL = URL(fileURLWithPath: CommandLine.arguments.dropFirst(2).first ?? "Assets/Brand/AppIcon.png")
+let sourceURL = URL(fileURLWithPath: CommandLine.arguments.dropFirst(2).first ?? "Assets/Brand/AppIconArtwork.png")
 guard let source = NSImage(contentsOf: sourceURL) else {
     fatalError("Cannot load app icon: \(sourceURL.path)")
 }
@@ -40,8 +40,12 @@ for item in sizes {
     NSGraphicsContext.saveGraphicsState()
     NSGraphicsContext.current = context
     context.imageInterpolation = .high
-    source.draw(in: NSRect(x: 0, y: 0, width: item.pixels, height: item.pixels),
-                from: .zero, operation: .copy, fraction: 1)
+    // Apply the native icon container during packaging; artwork remains an unmodified square master.
+    let side = CGFloat(item.pixels)
+    let iconRect = NSRect(x: 0, y: 0, width: side, height: side).insetBy(dx: side * 0.08, dy: side * 0.08)
+    let container = NSBezierPath(roundedRect: iconRect, xRadius: side * 0.19, yRadius: side * 0.19)
+    container.addClip()
+    source.draw(in: iconRect, from: .zero, operation: .sourceOver, fraction: 1)
     NSGraphicsContext.restoreGraphicsState()
     guard let data = bitmap.representation(using: .png, properties: [:]) else {
         fatalError("Cannot encode icon PNG")

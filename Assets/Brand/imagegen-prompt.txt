@@ -1,11 +1,9 @@
-Generator: built-in image_gen (transparent_background=true)
+Generator: built-in image_gen (transparent_background=false)
+Artwork: Assets/Brand/AppIconArtwork.png (unmodified square master)
+Packaging: scripts/make-app-icon.swift applies the rounded macOS container and transparent margins.
+Preview: Assets/Brand/AppIcon.png (1024px packaged icon)
 
 Use case: logo-brand
-Asset type: production macOS application icon, square 1024 by 1024
-Primary request: Design an elegant, highly polished icon for a Mac keep-awake utility called Awake, inspired by coffee keeping a computer awake.
-Subject: one beautifully sculpted porcelain espresso cup and subtle matching saucer, dark coffee visible, a single flowing curl of steam; the steam subtly suggests a rising wakeful energy. Bold simple silhouette readable at small sizes.
-Style/medium: premium macOS app icon, restrained dimensional material rendering, soft ceramic highlights, carefully balanced proportions, contemporary and refined rather than clip art.
-Composition/framing: centered icon on one rounded-square ceramic tile with softly rounded corners and generous transparent margins, straight-on with very slight elevation to see coffee surface, cup fills the tile confidently.
-Lighting/mood: soft studio illumination, beautiful restrained depth, crisp edges and clean finish.
-Color palette: cohesive coffee-inspired warm ivory porcelain cup with rich espresso coffee, warm amber tile with subtle tonal depth.
-Constraints: a single finished icon only; actual alpha-transparent canvas outside the tile including all four corners; no letters, no words, no watermark, no collage, no alternate versions, no surrounding UI, no extra objects; avoid tiny details and excessive glow; retain strong silhouette when reduced to 32px.
+Asset type: macOS app icon artwork, an opaque square master image, 1024 by 1024.
+Create a soft minimalist three-dimensional ivory ceramic coffee cup and saucer on a pale oatmeal greige background. Large clear cup with handle on the right, cocoa brown coffee visible, one subtle short wisp of steam. Quiet matte porcelain materials, very soft diffused lighting, low saturation, restrained soft dimensional depth, no glossy gold, no orange, no glow, no metallic surfaces. Cup and saucer fill the central 75 percent of the canvas; the whole composition has generous clear space in each corner for macOS corner masking.
+Crucial: This is a FULL-BLEED OPAQUE SQUARE. The pale warm gray backdrop extends continuously all the way to all four canvas edges. NO tile-within-a-canvas, NO rounded-square shape, NO transparent pixels, NO exterior shadow, NO white cutout margins, NO speckles or colored fringes. The build pipeline will add standard rounded corners. One finished artwork only, no words, no letters, no watermark, no additional objects.
