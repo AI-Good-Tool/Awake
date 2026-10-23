@@ -37,6 +37,9 @@ final class AppState: ObservableObject {
     @Published var forceClosedLidWake: Bool {
         didSet { persistAndEvaluate(allowSystemSleepPrompt: oldValue != forceClosedLidWake) }
     }
+    @Published var menuBarIconStyle: MenuBarIconStyle {
+        didSet { UserDefaults.standard.set(menuBarIconStyle.rawValue, forKey: Keys.menuBarIconStyle) }
+    }
     @Published var menuBarIconUsesActiveColor: Bool {
         didSet { persistAndEvaluate() }
     }
@@ -100,8 +103,9 @@ final class AppState: ObservableObject {
         lowBatteryThreshold = UserDefaults.standard.object(forKey: Keys.lowBatteryThreshold) as? Int ?? 20
         thermalProtection = UserDefaults.standard.object(forKey: Keys.thermalProtection) as? Bool ?? true
         forceClosedLidWake = UserDefaults.standard.object(forKey: Keys.forceClosedLidWake) as? Bool ?? false
+        menuBarIconStyle = .restored(from: UserDefaults.standard.string(forKey: Keys.menuBarIconStyle))
         menuBarIconUsesActiveColor = UserDefaults.standard.object(forKey: Keys.menuBarIconUsesActiveColor) as? Bool ?? true
-        menuBarIconColorHex = UserDefaults.standard.string(forKey: Keys.menuBarIconColorHex) ?? Brand.defaultActiveColorHex
+        menuBarIconColorHex = Brand.restoredActiveColorHex(from: UserDefaults.standard.string(forKey: Keys.menuBarIconColorHex))
         lastNonOffManualMode = Storage.load(KeepAwakeMode.self, key: Keys.lastNonOffManualMode, fallback: .keepDisplayOn)
         launchAtLogin = SMAppService.mainApp.status == .enabled
         hasCompletedOnboarding = UserDefaults.standard.bool(forKey: Keys.hasCompletedOnboarding)
@@ -660,6 +664,7 @@ private enum Keys {
     static let lowBatteryThreshold = "settings.lowBatteryThreshold"
     static let thermalProtection = "settings.thermalProtection"
     static let forceClosedLidWake = "settings.forceClosedLidWake"
+    static let menuBarIconStyle = "settings.menuBarIconStyle"
     static let menuBarIconUsesActiveColor = "settings.menuBarIconUsesActiveColor"
     static let menuBarIconColorHex = "settings.menuBarIconColorHex"
     static let lastNonOffManualMode = "settings.lastNonOffManualMode"

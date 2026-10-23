@@ -485,7 +485,7 @@ struct InfrastructureTests {
             "AwakeWatchdog",
             AppSupervisor.argument,
             "1",
-            "/Applications/醒咖 Awake.app"
+            "/Applications/醒咖.app"
         ]))
     }
 

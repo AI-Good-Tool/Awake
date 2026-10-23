@@ -9,7 +9,8 @@ struct MenuHeaderView: View {
                 Image(nsImage: BrandImages.menuBarCoffeeCup(
                     mode: appState.status.effectiveMode,
                     usesActiveColor: appState.menuBarIconUsesActiveColor,
-                    activeColorHex: appState.menuBarIconColorHex
+                    activeColorHex: appState.menuBarIconColorHex,
+                    style: appState.menuBarIconStyle
                 ))
                 .frame(width: 25, height: 18)
                 Text(appState.quickPaused ? "已暂停" : appState.status.effectiveMode.title)
@@ -92,36 +93,7 @@ struct GeneralSettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Section("菜单栏图标") {
-                Toggle("运行时使用彩色咖啡杯", isOn: $appState.menuBarIconUsesActiveColor)
-                ColorPicker("运行颜色", selection: Binding(
-                    get: {
-                        Color(nsColor: BrandImages.activeStatusColor(hex: appState.menuBarIconColorHex))
-                    },
-                    set: { color in
-                        appState.menuBarIconColorHex = NSColor(color).hexString
-                    }
-                ))
-                .disabled(!appState.menuBarIconUsesActiveColor)
-
-                Button("使用柔和默认色") {
-                    appState.menuBarIconColorHex = Brand.defaultActiveColorHex
-                }
-                .disabled(!appState.menuBarIconUsesActiveColor || appState.menuBarIconColorHex == Brand.defaultActiveColorHex)
-
-                HStack(spacing: 12) {
-                    Text("预览")
-                        .foregroundStyle(.secondary)
-                    Image(nsImage: BrandImages.statusBarCoffeeCupSymbol(
-                        mode: appState.manualMode == .off ? .presentation : appState.manualMode,
-                        usesActiveColor: appState.menuBarIconUsesActiveColor,
-                        activeColorHex: appState.menuBarIconColorHex
-                    ))
-                    .frame(width: 25, height: 18)
-                    Text("关闭时显示空心杯；启用模式后显示实心杯。")
-                        .foregroundStyle(.secondary)
-                }
-            }
+            MenuBarIconSettingsSection()
 
             Section("保护策略") {
                 Toggle("低电量保护", isOn: $appState.lowBatteryProtection)

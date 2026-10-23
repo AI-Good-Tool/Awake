@@ -59,7 +59,7 @@ jobs:
         run: |
           if ! gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
             gh release create "${RELEASE_TAG}" --verify-tag --draft \
-              --title "醒咖 Awake ${VERSION}" --notes-file docs/release-notes.md
+              --title "醒咖 ${VERSION}" --notes-file docs/release-notes.md
           fi
           gh release upload "${RELEASE_TAG}" \
             "dist/Awake-${VERSION}.dmg" \
@@ -67,4 +67,4 @@ jobs:
             "dist/Awake-${VERSION}.zip" \
             dist/SHA256SUMS.txt --clobber
           gh release edit "${RELEASE_TAG}" --draft=false --latest \
-            --title "醒咖 Awake ${VERSION}" --notes-file docs/release-notes.md
+            --title "醒咖 ${VERSION}" --notes-file docs/release-notes.md

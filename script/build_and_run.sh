@@ -11,7 +11,7 @@ esac
 
 # Graceful termination lets the supervisor and closed-lid watchdog restore sleep.
 if pgrep -x "Lidwake" >/dev/null; then
-    echo "请先从菜单栏退出旧版 Lidwake，再运行醒咖 Awake。" >&2
+    echo "请先从菜单栏退出旧版 Lidwake，再运行${APP_NAME}。" >&2
     exit 1
 fi
 if pgrep -x "${EXECUTABLE_NAME}" >/dev/null; then

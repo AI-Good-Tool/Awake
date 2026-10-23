@@ -45,7 +45,7 @@ final class StatusBarController: NSObject {
         settings.target = self
         applicationMenu.addItem(settings)
         applicationMenu.addItem(.separator())
-        let quitItem = NSMenuItem(title: "退出醒咖 Awake", action: #selector(quit), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: "退出\(Brand.appName)", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         applicationMenu.addItem(quitItem)
         applicationItem.submenu = applicationMenu
@@ -54,7 +54,7 @@ final class StatusBarController: NSObject {
     }
 
     private func appInfoMenuItems() -> [NSMenuItem] {
-        let about = NSMenuItem(title: "关于醒咖 Awake...", action: #selector(openAbout), keyEquivalent: "")
+        let about = NSMenuItem(title: "关于\(Brand.appName)...", action: #selector(openAbout), keyEquivalent: "")
         about.target = self
         let update = NSMenuItem(title: "检查更新...", action: #selector(checkForUpdates), keyEquivalent: "")
         update.target = self
@@ -68,6 +68,11 @@ final class StatusBarController: NSObject {
             .store(in: &cancellables)
 
         appState.$status
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.refreshIcon() }
+            .store(in: &cancellables)
+
+        appState.$menuBarIconStyle
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.refreshIcon() }
             .store(in: &cancellables)
@@ -105,7 +110,8 @@ final class StatusBarController: NSObject {
         let image = BrandImages.statusBarCoffeeCupSymbol(
             mode: appState.status.effectiveMode,
             usesActiveColor: appState.menuBarIconUsesActiveColor,
-            activeColorHex: appState.menuBarIconColorHex
+            activeColorHex: appState.menuBarIconColorHex,
+            style: appState.menuBarIconStyle
         )
 
         button.image = image
@@ -141,7 +147,8 @@ final class StatusBarController: NSObject {
         title.image = BrandImages.statusBarCoffeeCupSymbol(
             mode: appState.status.effectiveMode,
             usesActiveColor: appState.menuBarIconUsesActiveColor,
-            activeColorHex: appState.menuBarIconColorHex
+            activeColorHex: appState.menuBarIconColorHex,
+            style: appState.menuBarIconStyle
         )
         menu.addItem(title)
 
